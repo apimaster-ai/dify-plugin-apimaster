@@ -1,0 +1,156 @@
+provider: apimaster
+label:
+  en_US: APIMaster
+  zh_Hans: APIMaster
+description:
+  en_US: OpenAI-compatible gateway. One key for GPT, Claude, DeepSeek, Kimi, GLM, Qwen and more.
+  zh_Hans: OpenAI 兼容网关，一个 Key 调用 GPT、Claude、DeepSeek、Kimi、GLM、Qwen 等模型。
+icon_small:
+  en_US: icon.svg
+icon_large:
+  en_US: icon.svg
+background: "#EDEDFF"
+help:
+  title:
+    en_US: Get your API key
+    zh_Hans: 获取 API Key
+  url:
+    en_US: https://apimaster.ai/docs/getting-started/api-key
+supported_model_types:
+  - llm
+configurate_methods:
+  # predefined-model covers the ids we ship; customizable-model exists because an
+  # aggregator's catalog changes and users must be able to add a new id themselves.
+  - predefined-model
+  - customizable-model
+provider_credential_schema:
+  credential_form_schemas:
+    - variable: api_key
+      label:
+        en_US: API Key
+        zh_Hans: API Key
+      type: secret-input
+      required: true
+      placeholder:
+        en_US: Paste the key from your console
+        zh_Hans: 粘贴控制台里的 Key
+      help:
+        en_US: A key copied with a trailing newline returns 401. Re-copy it if in doubt.
+        zh_Hans: Key 复制时带了换行会返回 401，报错时请重新复制。
+      url: https://apimaster.ai/docs/getting-started/api-key
+    - variable: endpoint_url
+      label:
+        en_US: Base URL
+        zh_Hans: Base URL
+      type: text-input
+      required: true
+      default: https://apimaster.ai/v1
+      placeholder:
+        en_US: https://apimaster.ai/v1
+      help:
+        en_US: Must end with /v1. Point it at any other OpenAI-compatible gateway to reuse this plugin.
+        zh_Hans: 必须以 /v1 结尾。指向其它 OpenAI 兼容网关也可复用本插件。
+model_credential_schema:
+  model:
+    label:
+      en_US: Model ID
+      zh_Hans: 模型 ID
+    placeholder:
+      en_US: Exactly as returned by GET /v1/models, for example gpt-5.5
+      zh_Hans: 与 GET /v1/models 返回完全一致，例如 gpt-5.5
+  credential_form_schemas:
+    - variable: api_key
+      label:
+        en_US: API Key
+        zh_Hans: API Key
+      type: secret-input
+      required: true
+    - variable: endpoint_url
+      label:
+        en_US: Base URL
+        zh_Hans: Base URL
+      type: text-input
+      required: true
+      default: https://apimaster.ai/v1
+    - variable: mode
+      label:
+        en_US: Completion mode
+        zh_Hans: 补全模式
+      type: select
+      required: false
+      default: chat
+      options:
+        - value: chat
+          label:
+            en_US: Chat
+            zh_Hans: 对话
+        - value: completion
+          label:
+            en_US: Completion
+            zh_Hans: 补全
+    - variable: context_size
+      label:
+        en_US: Context size
+        zh_Hans: 上下文长度
+      type: text-input
+      required: false
+      default: "128000"
+      placeholder:
+        en_US: The real context length of this model
+        zh_Hans: 该模型的真实上下文长度
+    - variable: max_tokens_to_sample
+      label:
+        en_US: Max output tokens
+        zh_Hans: 最大输出 token
+      type: text-input
+      required: false
+      default: "4096"
+      help:
+        en_US: Keep this generous. Most models here are reasoning models and spend part of the budget on hidden reasoning before any visible text; a small value returns an empty answer.
+        zh_Hans: 不要设太小。这里多数是推理模型，会先消耗预算做隐藏推理，值太小会返回空内容。
+    - variable: function_calling_type
+      label:
+        en_US: Function calling
+        zh_Hans: 函数调用
+      type: select
+      required: false
+      default: tool_call
+      options:
+        - value: tool_call
+          label:
+            en_US: Tool Call
+            zh_Hans: Tool Call
+        - value: function_call
+          label:
+            en_US: Function Call
+            zh_Hans: Function Call
+        - value: no_call
+          label:
+            en_US: Not supported
+            zh_Hans: 不支持
+    - variable: vision_support
+      label:
+        en_US: Vision support
+        zh_Hans: 视觉支持
+      type: select
+      required: false
+      default: no_support
+      options:
+        - value: support
+          label:
+            en_US: Supported
+            zh_Hans: 支持
+        - value: no_support
+          label:
+            en_US: Not supported
+            zh_Hans: 不支持
+models:
+  llm:
+    predefined:
+      - models/llm/*.yaml
+    position: models/llm/_position.yaml
+extra:
+  python:
+    provider_source: provider/apimaster.py
+    model_sources:
+      - models/llm/llm.py

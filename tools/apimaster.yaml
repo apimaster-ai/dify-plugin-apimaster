@@ -1,0 +1,46 @@
+identity:
+  author: apimaster
+  name: apimaster
+  label:
+    en_US: APIMaster Media
+    zh_Hans: APIMaster 图像视频
+  description:
+    en_US: Generate images and video through APIMaster or any OpenAI-compatible gateway.
+    zh_Hans: 通过 APIMaster 或任意 OpenAI 兼容网关生成图像与视频。
+  icon: icon.svg
+  tags:
+    - image
+    - videos
+    - productivity
+credentials_for_provider:
+  api_key:
+    type: secret-input
+    required: true
+    label:
+      en_US: API Key
+      zh_Hans: API Key
+    placeholder:
+      en_US: Paste the key from your console
+      zh_Hans: 粘贴控制台里的 Key
+    help:
+      en_US: A key copied with a trailing newline returns 401.
+      zh_Hans: Key 复制时带了换行会返回 401。
+    url: https://apimaster.ai/docs/getting-started/api-key
+  base_url:
+    type: text-input
+    required: false
+    default: https://apimaster.ai/v1
+    label:
+      en_US: Base URL
+      zh_Hans: Base URL
+    placeholder:
+      en_US: https://apimaster.ai/v1
+    help:
+      en_US: Must end with /v1.
+      zh_Hans: 必须以 /v1 结尾。
+tools:
+  - tools/image.yaml
+  - tools/video.yaml
+extra:
+  python:
+    source: tools/apimaster.py

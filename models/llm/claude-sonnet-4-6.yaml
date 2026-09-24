@@ -1,0 +1,28 @@
+# Limits and capabilities from models.dev models/<provider>/claude-sonnet-4-6.toml (2026-09-24).
+model: claude-sonnet-4-6
+label:
+  en_US: Claude Sonnet 4.6
+model_type: llm
+features:
+  - agent-thought
+  - tool-call
+  - stream-tool-call
+  - vision
+model_properties:
+  mode: chat
+  context_size: 1000000
+parameter_rules:
+  - name: temperature
+    use_template: temperature
+  - name: top_p
+    use_template: top_p
+  - name: max_tokens
+    use_template: max_tokens
+    default: 4096
+    min: 1
+    max: 64000
+    help:
+      en_US: Reasoning models spend part of this budget on hidden reasoning before emitting text. Values under ~128 can return an empty answer.
+      zh_Hans: 推理模型会先用掉一部分预算做隐藏推理，设到 128 以下可能返回空内容。
+  - name: response_format
+    use_template: response_format

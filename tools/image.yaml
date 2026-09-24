@@ -1,0 +1,154 @@
+identity:
+  name: image
+  author: apimaster
+  label:
+    en_US: Generate Image
+    zh_Hans: 生成图像
+description:
+  human:
+    en_US: Text to image and image to image, with optional inpainting.
+    zh_Hans: 文生图与图生图，支持局部重绘。
+  llm: Generate an image from a text prompt. Optionally pass reference image URLs for image-to-image, and a mask URL for inpainting. Returns the image as a file and its URL.
+parameters:
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+    human_description:
+      en_US: What the image should show
+      zh_Hans: 想要生成的画面
+    llm_description: A detailed description of the image to generate.
+    form: llm
+  - name: model
+    type: select
+    required: false
+    default: gpt-image-2
+    label:
+      en_US: Model
+      zh_Hans: 模型
+    human_description:
+      en_US: Which image model to use
+      zh_Hans: 使用哪个图像模型
+    form: form
+    options:
+      - value: gpt-image-2
+        label:
+          en_US: GPT Image 2
+          zh_Hans: GPT Image 2
+      - value: doubao-seedream-5-0-pro-260628
+        label:
+          en_US: Seedream 5.0 Pro
+          zh_Hans: Seedream 5.0 Pro
+      - value: gemini-3.1-flash-image
+        label:
+          en_US: Gemini 3.1 Flash Image
+          zh_Hans: Gemini 3.1 Flash Image
+      - value: midjourney-v8.2
+        label:
+          en_US: Midjourney v8.2
+          zh_Hans: Midjourney v8.2
+      - value: midjourney-niji-7
+        label:
+          en_US: Midjourney Niji 7
+          zh_Hans: Midjourney Niji 7
+  - name: size
+    type: select
+    required: false
+    default: "1:1"
+    label:
+      en_US: Aspect ratio
+      zh_Hans: 画面比例
+    human_description:
+      en_US: Aspect ratio of the output
+      zh_Hans: 输出画面的比例
+    form: form
+    options:
+      - value: auto
+        label:
+          en_US: Auto
+          zh_Hans: 自动
+      - value: "1:1"
+        label:
+          en_US: Square 1:1
+          zh_Hans: 方形 1:1
+      - value: "16:9"
+        label:
+          en_US: Landscape 16:9
+          zh_Hans: 横屏 16:9
+      - value: "9:16"
+        label:
+          en_US: Portrait 9:16
+          zh_Hans: 竖屏 9:16
+      - value: "4:3"
+        label:
+          en_US: Landscape 4:3
+          zh_Hans: 横屏 4:3
+      - value: "3:4"
+        label:
+          en_US: Portrait 3:4
+          zh_Hans: 竖屏 3:4
+      - value: "21:9"
+        label:
+          en_US: Cinematic 21:9
+          zh_Hans: 电影宽幅 21:9
+  - name: resolution
+    type: select
+    required: false
+    default: 1k
+    label:
+      en_US: Resolution
+      zh_Hans: 分辨率
+    human_description:
+      en_US: 1k, 2k or 4k. Higher takes longer and costs more.
+      zh_Hans: 1k / 2k / 4k，越高越慢越贵。
+    form: form
+    options:
+      - value: 1k
+        label:
+          en_US: 1K
+          zh_Hans: 1K
+      - value: 2k
+        label:
+          en_US: 2K
+          zh_Hans: 2K
+      - value: 4k
+        label:
+          en_US: 4K
+          zh_Hans: 4K
+  - name: async_mode
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Submit and poll
+      zh_Hans: 异步提交并轮询
+    human_description:
+      en_US: Recommended for 2K and 4K. A single synchronous request at those sizes can exceed the gateway timeout and return 408.
+      zh_Hans: 2K/4K 建议开启。同步单请求在高分辨率下可能超时返回 408。
+    form: form
+  - name: reference_images
+    type: string
+    required: false
+    label:
+      en_US: Reference image URLs
+      zh_Hans: 参考图 URL
+    human_description:
+      en_US: Comma-separated public URLs for image-to-image, up to 16
+      zh_Hans: 图生图的公网 URL，逗号分隔，最多 16 张
+    llm_description: Comma-separated public image URLs to use as references for image-to-image generation.
+    form: llm
+  - name: mask_url
+    type: string
+    required: false
+    label:
+      en_US: Mask URL
+      zh_Hans: 遮罩图 URL
+    human_description:
+      en_US: Mask for inpainting. Must match the first reference image in size and carry an alpha channel.
+      zh_Hans: 局部重绘的遮罩图，需与第一张参考图同尺寸且带 Alpha 通道。
+    form: form
+extra:
+  python:
+    source: tools/image.py

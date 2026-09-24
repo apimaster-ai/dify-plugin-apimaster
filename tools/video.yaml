@@ -1,0 +1,157 @@
+identity:
+  name: video
+  author: apimaster
+  label:
+    en_US: Generate Video
+    zh_Hans: 生成视频
+description:
+  human:
+    en_US: Text to video and image to video. Submits the job, waits for it, returns the MP4.
+    zh_Hans: 文生视频与图生视频，提交后等待完成并返回 MP4。
+  llm: Generate a short video from a text prompt, optionally animating a reference image. Takes one to three minutes and returns the MP4 file.
+parameters:
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+    human_description:
+      en_US: What should happen in the video
+      zh_Hans: 视频里要发生什么
+    llm_description: A description of the motion and scene for the video.
+    form: llm
+  - name: model
+    type: select
+    required: false
+    default: sora-2
+    label:
+      en_US: Model
+      zh_Hans: 模型
+    human_description:
+      en_US: Which video model to use
+      zh_Hans: 使用哪个视频模型
+    form: form
+    options:
+      - value: sora-2
+        label:
+          en_US: Sora 2 (720p)
+          zh_Hans: Sora 2（720p）
+      - value: sora-2-pro
+        label:
+          en_US: Sora 2 Pro (up to 1080p)
+          zh_Hans: Sora 2 Pro（最高 1080p）
+      - value: seedance-2.5
+        label:
+          en_US: Seedance 2.5
+          zh_Hans: Seedance 2.5
+      - value: seedance-2.0
+        label:
+          en_US: Seedance 2.0
+          zh_Hans: Seedance 2.0
+      - value: kling-v3-motion-control
+        label:
+          en_US: Kling v3 Motion Control
+          zh_Hans: Kling v3 Motion Control
+      - value: kling-v3-omni
+        label:
+          en_US: Kling v3 Omni
+          zh_Hans: Kling v3 Omni
+      - value: MiniMax-H3
+        label:
+          en_US: MiniMax H3
+          zh_Hans: MiniMax H3
+      - value: grok-imagine-video-1.5
+        label:
+          en_US: Grok Imagine Video 1.5
+          zh_Hans: Grok Imagine Video 1.5
+  - name: duration
+    type: select
+    required: false
+    default: "4"
+    label:
+      en_US: Duration (seconds)
+      zh_Hans: 时长（秒）
+    human_description:
+      en_US: Billed per second of output
+      zh_Hans: 按输出秒数计费
+    form: form
+    options:
+      - value: "4"
+        label:
+          en_US: "4"
+          zh_Hans: "4"
+      - value: "8"
+        label:
+          en_US: "8"
+          zh_Hans: "8"
+      - value: "12"
+        label:
+          en_US: "12"
+          zh_Hans: "12"
+      - value: "16"
+        label:
+          en_US: "16"
+          zh_Hans: "16"
+      - value: "20"
+        label:
+          en_US: "20"
+          zh_Hans: "20"
+  - name: resolution
+    type: select
+    required: false
+    default: 720p
+    label:
+      en_US: Resolution
+      zh_Hans: 分辨率
+    human_description:
+      en_US: 1024p and 1080p need a pro model; sora-2 serves 720p only.
+      zh_Hans: 1024p/1080p 需要 pro 模型，sora-2 只有 720p。
+    form: form
+    options:
+      - value: 720p
+        label:
+          en_US: 720p
+          zh_Hans: 720p
+      - value: 1024p
+        label:
+          en_US: 1024p
+          zh_Hans: 1024p
+      - value: 1080p
+        label:
+          en_US: 1080p
+          zh_Hans: 1080p
+  - name: aspect_ratio
+    type: select
+    required: false
+    default: "16:9"
+    label:
+      en_US: Aspect ratio
+      zh_Hans: 画面比例
+    human_description:
+      en_US: Always set this when using a reference image. A portrait reference with no aspect ratio is treated as 16:9.
+      zh_Hans: 用参考图时务必设置。竖图不设比例会被当成 16:9。
+    form: form
+    options:
+      - value: "16:9"
+        label:
+          en_US: Landscape 16:9
+          zh_Hans: 横屏 16:9
+      - value: "9:16"
+        label:
+          en_US: Portrait 9:16
+          zh_Hans: 竖屏 9:16
+  - name: reference_image
+    type: string
+    required: false
+    label:
+      en_US: Reference image URL
+      zh_Hans: 参考图 URL
+    human_description:
+      en_US: Public URL of an image to animate
+      zh_Hans: 要驱动成视频的公网图片 URL
+    llm_description: A public image URL to animate into a video.
+    form: llm
+extra:
+  python:
+    source: tools/video.py
