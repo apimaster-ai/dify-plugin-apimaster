@@ -74,17 +74,41 @@ def poll(
     label: str,
     interval: float = 4.0,
     max_seconds: float = 900.0,
-) -> dict:
-    """The first read is delayed because these jobs are never ready immediately."""
+    return_none_on_timeout: bool = False,
+) -> dict | None:
+    """The first read is delayed because these jobs are never ready immediately.
+
+    A dropped connection or a 5xx while polling is retried (up to 5 in a row): the job keeps
+    running server-side and is already paid for. A 4xx is a real answer and raises.
+    """
     deadline = time.time() + max_seconds
     time.sleep(initial_delay)
+    failures = 0
     while time.time() < deadline:
-        payload = read()
+        try:
+            payload = read()
+        except (requests.ConnectionError, requests.Timeout) as exc:
+            failures += 1
+            if failures >= 5:
+                raise APIMasterError(None, f"Lost contact with the gateway while polling: {exc}") from None
+            time.sleep(interval)
+            continue
+        except APIMasterError as exc:
+            if exc.status is not None and exc.status < 500:
+                raise
+            failures += 1
+            if failures >= 5:
+                raise
+            time.sleep(interval)
+            continue
+        failures = 0
         if is_done(payload):
             return payload
         if is_failed(payload):
             raise APIMasterError(None, f"{label} job failed: {str(payload)[:200]}")
         time.sleep(interval)
+    if return_none_on_timeout:
+        return None
     raise APIMasterError(None, f"{label} job did not finish within {int(max_seconds)}s.")
 
 

@@ -6,9 +6,9 @@ identity:
     zh_Hans: 生成视频
 description:
   human:
-    en_US: Text to video and image to video. Submits the job, waits for it, returns the MP4.
-    zh_Hans: 文生视频与图生视频，提交后等待完成并返回 MP4。
-  llm: Generate a short video from a text prompt, optionally animating a reference image. Takes one to three minutes and returns the MP4 file.
+    en_US: Text to video and image to video. Waits up to about 8 minutes and returns the MP4; if the job is still rendering it returns the task ID instead, to fetch later with Get Video.
+    zh_Hans: 文生视频与图生视频。最多等待约 8 分钟并返回 MP4；若仍在生成，则返回任务 ID，之后用「获取视频」取回。
+  llm: Generate a short video from a text prompt, optionally animating a reference image. Video often takes 10-15 minutes. Returns the MP4 file if it finishes within about 8 minutes; otherwise returns a task_id with status in_progress, which the get_video tool can fetch later.
 parameters:
   - name: prompt
     type: string
@@ -24,7 +24,7 @@ parameters:
   - name: model
     type: select
     required: false
-    default: sora-2
+    default: seedance-2.5
     label:
       en_US: Model
       zh_Hans: 模型
@@ -33,14 +33,6 @@ parameters:
       zh_Hans: 使用哪个视频模型
     form: form
     options:
-      - value: sora-2
-        label:
-          en_US: Sora 2 (720p)
-          zh_Hans: Sora 2（720p）
-      - value: sora-2-pro
-        label:
-          en_US: Sora 2 Pro (up to 1080p)
-          zh_Hans: Sora 2 Pro（最高 1080p）
       - value: seedance-2.5
         label:
           en_US: Seedance 2.5
@@ -105,8 +97,8 @@ parameters:
       en_US: Resolution
       zh_Hans: 分辨率
     human_description:
-      en_US: 1024p and 1080p need a pro model; sora-2 serves 720p only.
-      zh_Hans: 1024p/1080p 需要 pro 模型，sora-2 只有 720p。
+      en_US: 720p works with every model; higher tiers depend on the model.
+      zh_Hans: 720p 所有模型都支持；更高分辨率取决于模型。
     form: form
     options:
       - value: 720p

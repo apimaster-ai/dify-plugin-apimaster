@@ -1,0 +1,26 @@
+identity:
+  name: get_video
+  author: apimaster
+  label:
+    en_US: Get Video
+    zh_Hans: 获取视频
+description:
+  human:
+    en_US: Check a video job started by Generate Video and return the MP4 once it has finished.
+    zh_Hans: 查询「生成视频」提交的任务，完成后返回 MP4。
+  llm: Check a video generation job by task_id. Returns the MP4 file if the job has finished, otherwise its status and progress. Use it after generate video returned status in_progress.
+parameters:
+  - name: task_id
+    type: string
+    required: true
+    label:
+      en_US: Task ID
+      zh_Hans: 任务 ID
+    human_description:
+      en_US: The task ID returned by Generate Video
+      zh_Hans: 「生成视频」返回的任务 ID
+    llm_description: The task_id returned by the generate video tool.
+    form: llm
+extra:
+  python:
+    source: tools/get_video.py

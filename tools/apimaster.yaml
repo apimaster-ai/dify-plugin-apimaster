@@ -41,6 +41,7 @@ credentials_for_provider:
 tools:
   - tools/image.yaml
   - tools/video.yaml
+  - tools/get_video.yaml
 extra:
   python:
     source: tools/apimaster.py

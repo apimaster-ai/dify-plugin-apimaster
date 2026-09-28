@@ -5,8 +5,8 @@ its own:
 
 1. **Chat models** from [APIMaster](https://apimaster.ai/docs) — preconfigured, with a
    credential check that actually verifies your key when you press Save.
-2. **Image and video generation tools** — `gpt-image-2`, Seedream, Midjourney, Sora 2,
-   Seedance, Kling, MiniMax H3 — usable inside any workflow or agent.
+2. **Image and video generation tools** — `gpt-image-2`, Seedream, Midjourney, Seedance,
+   Kling, MiniMax H3 — usable inside any workflow or agent.
 
 Works against any other OpenAI-compatible gateway too: change the Base URL.
 
@@ -84,13 +84,23 @@ link, and as JSON with all the URLs — use whichever your workflow needs.
 
 ### Generate Video
 
-Text-to-video and image-to-video. 4–20 seconds, 720p (1024p/1080p on the pro models),
+Text-to-video and image-to-video. 4–20 seconds, 720p (higher tiers depend on the model),
 landscape or portrait. Submits, polls, and returns the MP4 as a file.
+
+**Video is slow, and Dify has a time limit.** `seedance-2.5` took about 15 minutes for a
+4-second clip, while Dify stops a plugin call after 10 minutes by default
+(`PLUGIN_MAX_EXECUTION_TIMEOUT=600`). So the tool waits about 8.5 minutes; if the job is
+still rendering it returns `{"task_id": ..., "status": "in_progress"}` instead of failing.
+
+### Get Video
+
+Takes that `task_id` and returns the MP4 once the job has finished, or its status and
+progress if not. In a workflow, put it after Generate Video behind a wait or a loop; an
+agent can simply call it again later. Nothing is lost if you check back late.
 
 **Always set Aspect ratio when you pass a reference image.** A portrait reference with no
 aspect ratio is treated as 16:9 by the gateway and comes back letterboxed.
 
-`sora-2` serves 720p only — the tool corrects a higher setting rather than wasting the job.
 
 ## Use it with another gateway
 

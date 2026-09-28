@@ -128,7 +128,7 @@ class TestTools:
         provider = ToolProviderConfiguration(**raw)
         assert provider.identity.name == "apimaster"
 
-    @pytest.mark.parametrize("name", ["image", "video"])
+    @pytest.mark.parametrize("name", ["image", "video", "get_video"])
     def test_each_tool_parses(self, name):
         from dify_plugin.entities.tool import ToolConfiguration
 
@@ -158,8 +158,6 @@ class TestTools:
             "midjourney-niji-7",
         }
         verified_video = {
-            "sora-2",
-            "sora-2-pro",
             "seedance-2.5",
             "seedance-2.0",
             "kling-v3-motion-control",
@@ -194,6 +192,7 @@ class TestPythonSources:
             ("tools/apimaster.py", "tools.apimaster", "dify_plugin:ToolProvider"),
             ("tools/image.py", "tools.image", "dify_plugin:Tool"),
             ("tools/video.py", "tools.video", "dify_plugin:Tool"),
+            ("tools/get_video.py", "tools.get_video", "dify_plugin:Tool"),
         ],
     )
     def test_dify_loader_finds_exactly_one_class(self, rel, module_name, parent, monkeypatch):
@@ -218,3 +217,61 @@ class TestPythonSources:
         # silently drops the bearer token.
         source = (ROOT / "tools" / "client.py").read_text(encoding="utf-8")
         assert "urlparse" in source and "netloc" in source
+
+
+class TestVideoJobs:
+    """sora-2 was removed on 2026-09-28; seedance takes ~15 minutes, longer than Dify's
+    default 600 s plugin execution limit."""
+
+    def test_default_video_model_is_served(self):
+        params = {p["name"]: p for p in load("tools/video.yaml")["parameters"]}
+        assert params["model"]["default"] == "seedance-2.5"
+        assert "sora" not in (ROOT / "tools" / "video.yaml").read_text(encoding="utf-8")
+
+    def test_video_tool_returns_before_dify_kills_the_call(self, monkeypatch):
+        monkeypatch.syspath_prepend(str(ROOT))
+        from tools.video import WAIT_SECONDS
+
+        # 15 s initial delay + polling + the download must fit in PLUGIN_MAX_EXECUTION_TIMEOUT=600.
+        assert WAIT_SECONDS + 15 + 60 < 600
+
+    def test_poll_hands_back_none_instead_of_raising_when_asked(self, monkeypatch):
+        monkeypatch.syspath_prepend(str(ROOT))
+        import tools.client as client
+
+        monkeypatch.setattr(client.time, "sleep", lambda _s: None)
+        clock = iter(range(0, 10_000, 100))
+        monkeypatch.setattr(client.time, "time", lambda: next(clock))
+        result = client.poll(lambda: {"status": "in_progress"}, lambda p: False, lambda p: False,
+                             initial_delay=0, label="Video", max_seconds=300, return_none_on_timeout=True)
+        assert result is None
+
+    def test_poll_survives_network_drops_and_5xx(self, monkeypatch):
+        monkeypatch.syspath_prepend(str(ROOT))
+        import requests
+        import tools.client as client
+
+        monkeypatch.setattr(client.time, "sleep", lambda _s: None)
+        script = [requests.ConnectionError("drop"), client.APIMasterError(502, "bad gateway"), {"status": "completed"}]
+
+        def read():
+            step = script.pop(0)
+            if isinstance(step, Exception):
+                raise step
+            return step
+
+        done = client.poll(read, lambda p: p.get("status") == "completed", lambda p: False,
+                           initial_delay=0, label="Video")
+        assert done == {"status": "completed"} and script == []
+
+    def test_poll_still_fails_fast_on_a_4xx(self, monkeypatch):
+        monkeypatch.syspath_prepend(str(ROOT))
+        import tools.client as client
+
+        monkeypatch.setattr(client.time, "sleep", lambda _s: None)
+
+        def read():
+            raise client.APIMasterError(404, "no such task")
+
+        with pytest.raises(client.APIMasterError):
+            client.poll(read, lambda p: False, lambda p: False, initial_delay=0, label="Video")
