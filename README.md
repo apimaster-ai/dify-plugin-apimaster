@@ -10,6 +10,15 @@ its own:
 
 Works against any other OpenAI-compatible gateway too: change the Base URL.
 
+Source code: https://github.com/apimaster-ai/dify-plugin-apimaster
+
+## Requirements
+
+- An APIMaster API key ([get one here](https://apimaster.ai/docs/getting-started/api-key)),
+  or a key for whichever OpenAI-compatible gateway you point the Base URL at.
+- Outbound HTTPS from your Dify instance to `apimaster.ai`, or to the host in your Base URL.
+  Generated images and videos are downloaded from the URLs the gateway returns.
+
 ## Install
 
 From the Dify marketplace, search for **APIMaster**.
