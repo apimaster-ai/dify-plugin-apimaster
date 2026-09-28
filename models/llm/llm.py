@@ -1,7 +1,9 @@
-from dify_plugin import OAICompatLargeLanguageModel
+# Import the module, not the class: Dify rejects the file if more than one
+# LargeLanguageModel subclass (the imported base included) is visible at module level.
+import dify_plugin
 
 
-class APIMasterLargeLanguageModel(OAICompatLargeLanguageModel):
+class APIMasterLargeLanguageModel(dify_plugin.OAICompatLargeLanguageModel):
     """Thin subclass of Dify's OpenAI-compatible LLM.
 
     Everything this gateway needs — streaming, tool calls, vision, usage — is already

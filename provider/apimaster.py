@@ -1,12 +1,14 @@
 import logging
 
-from dify_plugin import OAICompatProvider
+# Import the module, not the class: Dify loads this file and rejects it if more than one
+# ModelProvider subclass (the imported base included) is visible at module level.
+import dify_plugin
 from dify_plugin.errors.model import CredentialsValidateFailedError
 
 logger = logging.getLogger(__name__)
 
 
-class APIMasterProvider(OAICompatProvider):
+class APIMasterProvider(dify_plugin.OAICompatProvider):
     """The base class treats provider credentials as always valid.
 
     That makes the "Save" button in Dify meaningless: a wrong key or a base URL missing

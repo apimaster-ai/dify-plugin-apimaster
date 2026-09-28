@@ -186,6 +186,33 @@ class TestPythonSources:
                 continue
             py_compile.compile(str(path), doraise=True)
 
+    @pytest.mark.parametrize(
+        ("rel", "module_name", "parent"),
+        [
+            ("provider/apimaster.py", "provider.apimaster", "dify_plugin.interfaces.model:ModelProvider"),
+            ("models/llm/llm.py", "models.llm.llm", "dify_plugin.interfaces.model.large_language_model:LargeLanguageModel"),
+            ("tools/apimaster.py", "tools.apimaster", "dify_plugin:ToolProvider"),
+            ("tools/image.py", "tools.image", "dify_plugin:Tool"),
+            ("tools/video.py", "tools.video", "dify_plugin:Tool"),
+        ],
+    )
+    def test_dify_loader_finds_exactly_one_class(self, rel, module_name, parent, monkeypatch):
+        # This is how the plugin runtime loads each file, and it refuses a file where more
+        # than one subclass is visible at module level. Importing the base class by name
+        # (`from dify_plugin import OAICompatProvider`) counts as a second one: 0.1.0 was
+        # rejected by the Marketplace install check for exactly that.
+        import importlib
+
+        from dify_plugin.core.utils.class_loader import load_single_subclass_from_source
+
+        monkeypatch.syspath_prepend(str(ROOT))
+        module_path, cls_name = parent.split(":")
+        parent_type = getattr(importlib.import_module(module_path), cls_name)
+        cls = load_single_subclass_from_source(
+            module_name=module_name, script_path=str(ROOT / rel), parent_type=parent_type
+        )
+        assert cls.__module__ == module_name
+
     def test_download_compares_hosts_not_prefixes(self):
         # Generated media lives on the same domain but outside /v1; prefix matching
         # silently drops the bearer token.
